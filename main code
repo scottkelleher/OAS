@@ -1,7 +1,7 @@
 // This #include statement was automatically added by the Particle IDE.
-#include "lib1.h"
+//#include "lib1.h"
 
-   
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //To Do
@@ -36,7 +36,7 @@ bool alert; // Variable to keep track of whether alert has been triggered
 /////////////////////////////////////////////
 ////////////////////SD///////////////////////{
 /////////////////////////////////////////////
-#include "SdFat/SdFat.h"
+#include "626/SdFat.h"
 #define SPI_CONFIGURATION 0
 //------------------------------------------------------------------------------
 // Setup SPI configuration.
@@ -70,11 +70,14 @@ File myFile;
 /////////////////////////////////////////////
 ////////////////////BME//////////////////////{
 /////////////////////////////////////////////
-#include "SparkFunBME280/SparkFunBME280.h"
+#include "Adafruit_BME280/Adafruit_Sensor.h"
+#include "Adafruit_BME280/Adafruit_BME280.h"
 
-BME280 mySensor;
+//#include "SparkFunBME280/SparkFunBME280.h"
 
-unsigned int sampleNumber = 0; //For counting number of CSV rows
+//BME280 mySensor;
+
+//unsigned int sampleNumber = 0; //For counting number of CSV rows
 /////////////////////////////////////////////
 ////////////////////BME//////////////////////}
 /////////////////////////////////////////////
@@ -97,7 +100,7 @@ unsigned long previousMillis = 0;        // will store last time LED was updated
 
 const int nAverage = 15;        //How many readings should be averaged 0<X<512
 float sharp_readings[nAverage]; //
-int reading_index=0; 
+int reading_index=0;
 float sharp_a=0;
 
 
@@ -120,9 +123,9 @@ void setup() {
     //}
     Time.zone(-6);
    // Time.format(Time.time(), "%m/%d/%Y %H:%M:%S");
-    
-    
-    
+
+
+
     pinMode(D7, OUTPUT);
     digitalWrite(D7, HIGH);
     pinMode(D5, OUTPUT);
@@ -131,7 +134,7 @@ void setup() {
     digitalWrite(D6, HIGH);
     pinMode(D4, OUTPUT);
     digitalWrite(D4, LOW);
-    
+
     /////////////////////////////////////////////
     ////////////////////SD///////////////////////{
     /////////////////////////////////////////////
@@ -144,12 +147,12 @@ void setup() {
     if (!myFile.open("AOS_Test.txt", O_RDWR | O_CREAT | O_AT_END)) {
         sd.errorHalt("opening test.txt for write failed");
     }
-    
+
     myFile.close();
     /////////////////////////////////////////////
     ////////////////////SD///////////////////////}
     /////////////////////////////////////////////
-    
+
     /////////////////////////////////////////////
     ////////////////////BME//////////////////////{
     /////////////////////////////////////////////
@@ -183,12 +186,12 @@ void setup() {
 	//  0, skipped
 	//  1 through 5, oversampling *1, *2, *4, *8, *16 respectively
 	mySensor.settings.humidOverSample = 1;
-	
+
 	mySensor.begin();
     /////////////////////////////////////////////
     ////////////////////BME//////////////////////}
     /////////////////////////////////////////////
-    
+
     /////////////////////////////////////////////
     ////////////////////ads//////////////////////{
     /////////////////////////////////////////////
@@ -202,14 +205,14 @@ void setup() {
     //multiplier =  0.03125F;
     //ads.setGain(GAIN_EIGHT);      // 8x gain   +/- 0.512V  1 bit =     0.25mV    0.015625mV
     //multiplier =  0.015625F;
-    //ads.setGain(GAIN_SIXTEEN);    // 16x gain  +/- 0.256V  1 bit =     0.125mV   0.0078125mV  
+    //ads.setGain(GAIN_SIXTEEN);    // 16x gain  +/- 0.256V  1 bit =     0.125mV   0.0078125mV
     //multiplier =  0.0078125F;
     ads.begin();
     /////////////////////////////////////////////
     ////////////////////ads//////////////////////}
     /////////////////////////////////////////////
-    
-    
+
+
     ///////////////fuel gauge/////////////////
 
 
@@ -223,7 +226,7 @@ lipo.begin(); // Initialize the MAX17043 LiPo fuel gauge
 	// We can alert at anywhere between 1% - 32%:
 //	lipo.setThreshold(20); // Set alert threshold to 20%.
     ////////////// fuel gauge //////////////////////////
-    
+
 }
 
 void log_data() {
@@ -232,24 +235,24 @@ void log_data() {
     double particle_analogsignal;
     particle_analogsignal=voltageRaw();
 
-   
-  
 
-    
+
+
+
     //sharp1 = read_sharp(1);
     //sharp2 = read_sharp(2);
     //sharp3 = read_sharp(3);.
-    
+
     float tempC, press, altM, RH;
     tempC = mySensor.readTempC();
     press = mySensor.readFloatPressure();
     altM  = mySensor.readFloatAltitudeMeters();
-    RH    = mySensor.readFloatHumidity();
-    
+    RH   = mySensor.readFloatHumidity();
+
     if (!myFile.open("AOS_Test.txt", O_RDWR | O_AT_END)) {
         sd.errorHalt("opening test.txt for write failed");
     }
-    
+
     myFile.print(tempC, 3); myFile.print(",");
     myFile.print(press, 3); myFile.print(",");
     myFile.print(altM,  3); myFile.print(",");
@@ -262,8 +265,8 @@ void log_data() {
     myFile.print(battery_volts,3);myFile.print(",");
     myFile.println(soc,3);
     myFile.close();
-    
-    
+
+
 }
 
 
@@ -276,8 +279,8 @@ float read_sharp(int num){
     // Add transfer funtion here
     //delay(12);
     return voltage;
-}  
-    
+}
+
 float voltageRaw (){
     digitalWrite(D7, 0);
     delayMicroseconds(280);
@@ -306,17 +309,17 @@ float read_sharp_averaged(){
 
 
 
-    
-    
+
+
 void loop() {
     const long interval = 2000;           // interval at which to blink (milliseconds)
-    
+
     unsigned long currentMillis = millis();
     if(currentMillis - previousMillis >= interval) {
-        previousMillis = currentMillis;   
+        previousMillis = currentMillis;
         log_data();
-        
-        
+
+
         float raw=voltageRaw();
         //Average();
        ;
@@ -326,25 +329,25 @@ void loop() {
         Serial.print(String::format("%f, %f,", tempC, sharp_a));
       Serial.print(String::format("%f,", sharp0));
       Serial.print(Time.timeStr());
-        
+
     }
-    
-    
+
+
     if(sharp_a>500) {
           digitalWrite(D4, HIGH);
     }
     else {
           digitalWrite(D4, LOW);
     }
-    
-    
-    
-     
-    
-    
- 
-    
-   
+
+
+
+
+
+
+
+
+
 
 
 
